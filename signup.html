@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Sign Up</title>
+  <script src="signup.css"></script>
+  <link rel="stylesheet" href="signup.css">
+  <link rel="icon" href="https://source.unsplash.com/1600x1000/?chart">
+</head>
+<body>
+  <h1>Sign Up</h1>
+  <form action="/signup" method="POST" onsubmit="redirectToAnotherPage(event)">
+    <label for="email">Email:</label>
+    <input type="email" id="email" name="email" required><br>
+
+    <label for="password">Password:</label>
+    <input type="password" id="password" name="password" required><br>
+
+    <input type="submit" value="Sign Up">
+  </form>
+
+  <script>
+    function redirectToAnotherPage(event) {
+      event.preventDefault();
+      window.location.href = 'visualization.html';
+    }
+  </script>
+</body>
+</html>

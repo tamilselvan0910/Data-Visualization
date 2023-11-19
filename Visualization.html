@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Data Visualization</title>
+  <script src="https://d3js.org/d3.v7.min.js"></script>
+  <link rel="icon" href="https://source.unsplash.com/1600x1000/?chart">
+  <style>
+    /* CSS Styles */
+    rect {
+      fill: steelblue;
+    }
+
+    /* Style for the selected bar */
+    rect.selected {
+      fill: orange;
+    }
+
+    /* Style for the axis */
+    .axis text {
+      font-family: Arial, sans-serif;
+      font-size: 10px;
+    }
+
+    .axis path,
+    .axis line {
+      fill: none;
+      stroke: black;
+      shape-rendering: crispEdges;
+    }
+
+    /* Style for the line chart */
+    .line {
+      fill: none;
+      stroke: red;
+      stroke-width: 2px;
+    }
+    .header{
+    background-color: rgb(143, 143, 143);
+    border-bottom: 1px solid rgb(58, 57, 57);
+    padding: 20px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    }
+    .chart{
+      margin: 100px 20px 20px 100px;
+      width: fit-content;
+      height: max-content;
+      width: max-content;
+      position: absolute;
+    }
+    #barChart,#lineChart{
+      border: 2px solid lightgray;
+      border-radius: 12px;
+      padding: 10px;
+      position: relative;
+    }
+    #lineChart{
+      margin-left: 24px;
+      margin-top: 0px;
+    }
+    .bar{
+      margin-left: 22%;
+    }
+    .inline{
+      margin-top: -40px;
+      margin-left: 73%;
+    }
+    body{
+      margin: 0px;
+    }
+    .but{
+    border: rgb(44, 44, 44);
+    font-size:23px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-left: 100vh;
+  }
+  .login,.sign_up{
+    color:black ;
+    background-color:rgb(255, 255, 255);
+    border: rgb(58, 57, 57);
+  }
+  .login:hover,.sign_up:hover{
+    cursor: pointer;
+    color: rgb(255, 255, 255);
+    background-color: rgb(0, 0, 0);
+  }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <div class="age">
+      <label for="age-filter">Age:</label>
+      <select id="age-filter">
+        <option value="15-25">15-25</option>
+        <option value=">25">&gt;25</option>
+      </select>
+    </div>
+    <div class="gender">
+      <label for="gender-filter">Gender:</label>
+      <select id="gender-filter">
+        <option value="all">All</option>
+        <option value="male">Male</option>
+        <option value="female">Female</option>
+      </select>
+    </div>
+    <div class="date">
+      <label for="startDate">Start Date:</label>
+      <input type="date" id="startDate" value="2022-04-10">
+      <label for="endDate">End Date:</label>
+      <input type="date" id="endDate" value="2022-04-10">
+    </div>
+    <div class="but_container">
+      <div class="but">
+        <a href="login.html"><button class="login">login</button></a>
+        <a href="signup.html"><button class="sign_up">sign up</button></a>
+      </div>
+    </div>
+  </div>
+  <div class="chart">
+    <svg id="barChart" width="600" height="400"></svg>
+    <svg id="lineChart" width="600" height="200"></svg>
+    <h4 class="bar">Bar Chart</h4>
+    <h4 class="inline">Inline Chart</h4>
+  </div>
+  <script>
+    const data = [
+      { day: '2022-04-10', A: 61, B: 141, C: 662, D: 461, E: 648, F: 381 },
+      { day: '2022-04-10', A: 568, B: 821, C: 571, D: 492, E: 923, F: 761 },
+      { day: '2022-04-10', A: 270, B: 398, C: 625, D: 57, E: 457, F: 767 },
+      { day: '2022-04-10', A: 609, B: 372, C: 679, D: 867, E: 116, F: 524 },
+      { day: '2022-05-10', A: 635, B: 941, C: 13, D: 562, E: 512, F: 632 },
+      { day: '2022-05-10', A: 333, B: 441, C: 327, D: 41, E: 731, F: 837 },
+      { day: '2022-05-10', A: 831, B: 410, C: 603, D: 157, E: 479, F: 678 },
+  { day: '2022-05-10', A: 19, B: 903, C: 992, D: 607, E: 716, F: 330 },
+  { day: '2022-06-10', A: 782, B: 578, C: 977, D: 926, E: 828, F: 863 },
+  { day: '2022-06-10', A: 770, B: 151, C: 66, D: 759, E: 220, F: 65 },
+  { day: '2022-06-10', A: 106, B: 408, C: 346, D: 271, E: 742, F: 63 },
+  { day: '2022-06-10', A: 757, B: 202, C: 592, D: 714, E: 519, F: 1000 },
+  { day: '2022-07-10', A: 427, B: 739, C: 61, D: 745, E: 334, F: 950 },
+  { day: '2022-07-10', A: 870, B: 267, C: 80, D: 625, E: 77, F: 186 },
+  { day: '2022-07-10', A: 226, B: 393, C: 649, D: 81, E: 17, F: 65 },
+  { day: '2022-07-10', A: 252, B: 829, C: 312, D: 614, E: 588, F: 801 },
+  { day: '2022-08-10', A: 965, B: 887, C: 110, D: 962, E: 495, F: 836 },
+  { day: '2022-08-10', A: 201, B: 662, C: 270, D: 35, E: 852, F: 982 },
+  { day: '2022-08-10', A: 964, B: 965, C: 17, D: 890, E: 361, F: 816 },
+  { day: '2022-08-10', A: 251, B: 805, C: 581, D: 556, E: 668, F: 182 },
+  { day: '2022-09-10', A: 5, B: 364, C: 476, D: 338, E: 869, F: 632 },
+  { day: '2022-09-10', A: 186, B: 71, C: 31, D: 204, E: 697, F: 565 },
+  { day: '2022-09-10', A: 632, B: 985, C: 581, D: 441, E: 210, F: 371 },
+  { day: '2022-09-10', A: 241, B: 669, C: 164, D: 592, E: 972, F: 442 },
+  { day: '2022-10-10', A: 877, B: 771, C: 648, D: 6, E: 59, F: 810 },
+  { day: '2022-10-10', A: 563, B: 465, C: 484, D: 836, E: 203, F: 717 },
+  { day: '2022-10-10', A: 619, B: 558, C: 406, D: 918, E: 347, F: 376 },
+  { day: '2022-10-10', A: 394, B: 849, C: 723, D: 827, E: 907, F: 450 },
+  { day: '2022-11-10', A: 341, B: 5, C: 199, D: 487, E: 55, F: 643 },
+  { day: '2022-11-10', A: 694, B: 230, C: 503, D: 854, E: 63, F: 608 },
+  { day: '2022-11-10', A: 755, B: 910, C: 837, D: 388, E: 289, F: 929 },
+  { day: '2022-11-10', A: 547, B: 720, C: 30, D: 914, E: 434, F: 497 },
+  { day: '2022-12-10', A: 385, B: 220, C: 381, D: 191, E: 233, F: 147 },
+  { day: '2022-12-10', A: 599, B: 186, C: 331, D: 361, E: 753, F: 722 },
+  { day: '2022-12-10', A: 548, B: 181, C: 479, D: 535, E: 785, F: 805 },
+  { day: '2022-12-10', A: 592, B: 654, C: 736, D: 810, E: 900, F: 511 },
+  { day: '2022-13-10', A: 560, B: 212, C: 496, D: 806, E: 337, F: 305 },
+  { day: '2022-13-10', A: 411, B: 338, C: 509, D: 19, E: 514, F: 965 },
+  { day: '2022-13-10', A: 140, B: 524, C: 343, D: 988, E: 138, F: 785 },
+  { day: '2022-13-10', A: 719, B: 481, C: 667, D: 82, E: 469, F: 279 },
+  { day: '2022-14-10', A: 536, B: 449, C: 455, D: 758, E: 56, F: 276 },
+  { day: '2022-14-10', A: 448, B: 826, C: 489, D: 728, E: 645, F: 749 },
+  { day: '2022-14-10', A: 498, B: 98, C: 515, D: 940, E: 28, F: 359 },
+  { day: '2022-14-10', A: 141, B: 49, C: 72, D: 402, E: 735, F: 779 },
+  { day: '2022-15-10', A: 0, B: 995, C: 539, D: 171, E: 611, F: 622 },
+  { day: '2022-15-10', A: 273, B: 774, C: 567, D: 827, E: 538, F: 306 },
+  { day: '2022-15-10', A: 980, B: 781, C: 396, D: 34, E: 319, F: 453 },
+  { day: '2022-15-10', A: 293, B: 990, C: 600, D: 430, E: 696, F: 431 },
+  { day: '2022-16-10', A: 3, B: 130, C: 449, D: 336, E: 947, F: 347 },
+  { day: '2022-16-10', A: 890, B: 581, C: 709, D: 35, E: 935, F: 611 },
+  { day: '2022-16-10', A: 903, B: 426, C: 245, D: 693, E: 150, F: 191 },
+  { day: '2022-16-10', A: 1000, B: 335, C: 513, D: 2, E: 39, F: 890 },
+  { day: '2022-17-10', A: 137, B: 314, C: 193, D: 742, E: 694, F: 645 },
+  { day: '2022-17-10', A: 713, B: 741, C: 437, D: 998, E: 613, F: 63 },
+  { day: '2022-17-10', A: 157, B: 515, C: 221, D: 145, E: 217, F: 888 },
+  { day: '2022-17-10', A: 805, B: 449, C: 405, D: 353, E: 608, F: 973 },
+  { day: '2022-18-10', A: 727, B: 457, C: 211, D: 128, E: 63, F: 860 },
+  { day: '2022-18-10', A: 64, B: 466, C: 190, D: 617, E: 66, F: 520 },
+  { day: '2022-18-10', A: 240, B: 887, C: 640, D: 439, E: 733, F: 604 },
+  { day: '2022-18-10', A: 427, B: 505, C: 633, D: 163, E: 984, F: 478 },
+  { day: '2022-19-10', A: 308, B: 179, C: 415, D: 883, E: 228, F: 64 },
+  { day: '2022-19-10', A: 725, B: 226, C: 468, D: 323, E: 789, F: 368 },
+  { day: '2022-19-10', A: 268, B: 63, C: 447, D: 625, E: 62, F: 672 },
+  { day: '2022-19-10', A: 354, B: 901, C: 789, D: 354, E: 369, F: 916 },
+  { day: '2022-20-10', A: 263, B: 852, C: 496, D: 299, E: 546, F: 74 },
+  { day: '2022-20-10', A: 502, B: 799, C: 643, D: 39, E: 430, F: 50 },
+  { day: '2022-20-10', A: 713, B: 339, C: 200, D: 93, E: 351, F: 474 },
+  { day: '2022-20-10', A: 661, B: 122, C: 813, D: 901, E: 322, F: 637 },
+  { day: '2022-21-10', A: 405, B: 723, C: 944, D: 914, E: 198, F: 451 },
+  { day: '2022-21-10', A: 879, B: 605, C: 521, D: 900, E: 479, F: 888 },
+  { day: '2022-21-10', A: 597, B: 431, C: 997, D: 828, E: 797, F: 660 },
+  { day: '2022-21-10', A: 485, B: 961, C: 739, D: 406, E: 450, F: 466 },
+  { day: '2022-22-10', A: 685, B: 360, C: 691, D: 132, E: 413, F: 247 },
+  { day: '2022-22-10', A: 538, B: 895, C: 624, D: 692, E: 64, F: 80 },
+  { day: '2022-22-10', A: 838, B: 966, C: 868, D: 882, E: 385, F: 730 },
+  { day: '2022-22-10', A: 3, B: 492, C: 668, D: 811, E: 874, F: 675 },
+  { day: '2022-23-10', A: 977, B: 990, C: 214, D: 868, E: 484, F: 817 },
+  { day: '2022-23-10', A: 976, B: 822, C: 678, D: 597, E: 172, F: 507 },
+  { day: '2022-23-10', A: 301, B: 518, C: 109, D: 22, E: 26, F: 548 }, 
+  { day: '2022-23-10', A: 390, B: 898, C: 273, D: 422, E: 111, F: 75 },
+  { day: '2022-24-10', A: 41, B: 34, C: 207, D: 742, E: 195, F: 3 },
+  { day: '2022-24-10', A: 456, B: 556, C: 983, D: 52, E: 859, F: 282 },
+  { day: '2022-24-10', A: 838, B: 213, C: 926, D: 833, E: 999, F: 964 },
+  { day: '2022-24-10', A: 971, B: 23, C: 50, D: 386, E: 75, F: 90 },
+  { day: '2022-25-10', A: 390, B: 310, C: 665, D: 677, E: 136, F: 432 },
+  { day: '2022-25-10', A: 312, B: 384, C: 186, D: 448, E: 7, F: 94 },
+  { day: '2022-25-10', A: 281, B: 125, C: 518, D: 982, E: 567, F: 131 },
+  { day: '2022-25-10', A: 732, B: 570, C: 544, D: 829, E: 3, F: 863 },
+  { day: '2022-26-10', A: 717, B: 868, C: 312, D: 402, E: 579, F: 392 },
+  { day: '2022-26-10', A: 925, B: 165, C: 478, D: 948, E: 814, F: 7 },
+  { day: '2022-26-10', A: 927, B: 865, C: 489, D: 590, E: 418, F: 572 },
+  { day: '2022-26-10', A: 402, B: 930, C: 13, D: 174, E: 511, F: 892 },
+  { day: '2022-27-10', A: 8, B: 479, C: 861, D: 459, E: 286, F: 67 },
+  { day: '2022-27-10', A: 764, B: 596, C: 352, D: 930, E: 436, F: 767 },
+  { day: '2022-27-10', A: 478, B: 737, C: 975, D: 793, E: 298, F: 226 },
+  { day: '2022-27-10', A: 571, B: 987, C: 324, D: 533, E: 406, F: 187 },
+  { day: '2022-28-10', A: 207, B: 55, C: 464, D: 783, E: 629, F: 416 },
+  { day: '2022-28-10', A: 580, B: 501, C: 938, D: 407, E: 211, F: 627 },
+  { day: '2022-28-10', A: 868, B: 845, C: 461, D: 662, E: 869, F: 18 },
+  { day: '2022-28-10', A: 668, B: 655, C: 390, D: 674, E: 554, F: 668 },
+  { day: '2022-29-10', A: 529, B: 131, C: 120, D: 847, E: 877, F: 82 },
+  { day: '2022-29-10', A: 124, B: 767, C: 332, D: 342, E: 413, F: 396 },
+  { day: '2022-29-10', A: 584, B: 316, C: 655, D: 633, E: 323, F: 489 },
+  { day: '2022-29-10', A: 205, B: 512, C: 146, D: 783, E: 878, F: 371 }
+    ];
+
+    const margin = { top: 20, right: 20, bottom: 30, left: 40 };
+    const width = 600 - margin.left - margin.right;
+    const height = 400 - margin.top - margin.bottom;
+
+    const svgBar = d3.select('#barChart')
+      .attr('width', width + margin.left + margin.right)
+      .attr('height', height + margin.top + margin.bottom)
+      .append('g')
+      .attr('transform', 'translate(' + margin.left + ',' + margin.top + ')');
+
+    let xAxis = svgBar.append('g')
+      .attr('class', 'x-axis')
+      .attr('transform', 'translate(0,' + height + ')');
+
+    let yAxis = svgBar.append('g')
+      .attr('class', 'y-axis');
+
+    // Function to update the bar chart based on selected date range
+    const updateBarChart = () => {
+      const startDate = new Date(document.getElementById('startDate').value);
+      const endDate = new Date(document.getElementById('endDate').value);
+
+      const filteredData = data.filter(entry => {
+        const currentDate = new Date(entry.day);
+        return currentDate >= startDate && currentDate <= endDate;
+      });
+
+      // Calculate total time spent for each feature
+      const features = ['A', 'B', 'C', 'D', 'E', 'F'];
+      const totalTimes = {};
+
+      features.forEach(feature => {
+        totalTimes[feature] = d3.sum(filteredData, d => d[feature]);
+      });
+
+      const x = d3.scaleBand()
+        .domain(features)
+        .range([0, width])
+        .padding(0.1);
+
+      const y = d3.scaleLinear()
+        .domain([0, d3.max(Object.values(totalTimes))])
+        .range([height, 0]);
+
+      xAxis.call(d3.axisBottom(x));
+      yAxis.call(d3.axisLeft(y));
+
+      // Clear previous bars
+      svgBar.selectAll('.bar').remove();
+
+      svgBar.selectAll('.bar')
+        .data(features)
+        .enter().append('rect')
+        .attr('class', 'bar')
+        .attr('x', d => x(d))
+        .attr('width', x.bandwidth())
+        .attr('y', d => y(totalTimes[d]))
+        .attr('height', d => height - y(totalTimes[d]))
+        .attr('fill', 'steelblue')
+        .on('click', function (event, d) {
+          // Handle click event (e.g., select the bar)
+          svgBar.selectAll('rect').attr('class', ''); // Deselect all bars
+          d3.select(this).attr('class', 'selected'); // Highlight selected bar
+        });
+    };
+
+    // Attach event listeners to date inputs for updating the bar chart
+    document.getElementById('startDate').addEventListener('change', updateBarChart);
+    document.getElementById('endDate').addEventListener('change', updateBarChart);
+
+    // Initial call to render the bar chart
+    updateBarChart();
+
+    const svgLine = d3.select('#lineChart')
+      .attr('width', 600) // Set the width for the line chart
+      .attr('height', 200); // Set the height for the line chart
+
+    // Function to update the line chart based on selected date range
+    const updateLineChart = () => {
+      const startDate = new Date(document.getElementById('startDate').value);
+      const endDate = new Date(document.getElementById('endDate').value);
+
+      const filteredData = data.filter(entry => {
+        const currentDate = new Date(entry.day);
+        return currentDate >= startDate && currentDate <= endDate;
+      });
+
+      const parseTime = d3.timeParse('%Y-%m-%d');
+      const lineData = filteredData.map(d => ({
+        date: parseTime(d.day),
+        value: d.A // Example: Use 'A' data for the line chart
+      }));
+
+      const margin = { top: 10, right: 30, bottom: 30, left: 60 };
+      const width = 600 - margin.left - margin.right;
+      const height = 200 - margin.top - margin.bottom;
+
+      const x = d3.scaleTime()
+        .domain(d3.extent(lineData, d => d.date))
+        .range([0, width]);
+
+      const y = d3.scaleLinear()
+        .domain([0, d3.max(lineData, d => d.value)])
+        .range([height, 0]);
+
+      const line = d3.line()
+        .x(d => x(d.date))
+        .y(d => y(d.value));
+
+      svgLine.selectAll('*').remove(); // Clear previous line chart elements
+
+      const g = svgLine.append('g')
+        .attr('transform', `translate(${margin.left},${margin.top})`);
+
+      g.append('path')
+        .datum(lineData)
+        .attr('class', 'line')
+        .attr('d', line);
+
+      g.append('g')
+        .attr('transform', `translate(0,${height})`)
+        .call(d3.axisBottom(x));
+
+      g.append('g')
+        .call(d3.axisLeft(y));
+    };
+
+    // Attach event listeners to date inputs for updating the line chart
+    document.getElementById('startDate').addEventListener('change', updateLineChart);
+    document.getElementById('endDate').addEventListener('change', updateLineChart);
+
+    // Initial call to render the line chart
+    updateLineChart();
+  </script>
+</body>
+</html>
